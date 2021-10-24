@@ -5,16 +5,21 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import ru.example.entities.BusinessId;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
 import ru.example.repositories.BusinessIdRepository;
 
 import javax.persistence.Entity;
+import javax.transaction.Transactional;
 import java.lang.reflect.Field;
 
 @Aspect
 @Configuration
 public class AspectDefinition {
 
+    @Autowired
+    JdbcTemplate jdbcTemplate;
     @Autowired
     private BusinessIdRepository businessIdRepository;
 
@@ -45,10 +50,11 @@ public class AspectDefinition {
     }
 
     public long getNextValue(String name) {
-        BusinessId businessId = businessIdRepository.findById(name);
-        long nextLastId = businessId.getLastId() + 1;
-        businessId.setLastId(nextLastId);
-        businessIdRepository.save(businessId);
-        return nextLastId;
+        int sequenceNextVal = 0;
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet("VALUES NEXT VALUE FOR ACTUALENTITY;");
+        while (sqlRowSet.next()) {
+            sequenceNextVal = sqlRowSet.getInt("C1");
+        }
+        return sequenceNextVal;
     }
 }

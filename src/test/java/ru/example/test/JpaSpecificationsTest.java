@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -53,6 +54,9 @@ public class JpaSpecificationsTest {
 
     @Autowired
     ApplicationContext applicationContext;
+
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
     private JpaSpecificationsBuilder<ExampleEntity> specificationsBuilder = new JpaSpecificationsBuilder<>();
 
@@ -205,6 +209,7 @@ public class JpaSpecificationsTest {
     @Test
     @Transactional
     public void checkGenerate() {
+        jdbcTemplate.execute("create sequence CREDIT.actualEntity cache 2;");
         ActualEntity actualEntity = new ActualEntity();
         ActualEntity actualEntity1 = new ActualEntity();
         ActualEntity actualEntity2 = new ActualEntity();
